@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriPlan Pro - Plan alimentar inteligent</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    /* ===== RESET & BASE ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+    :root {
+      --primary: #1a3a5c;
+      --primary-light: #2a6b8a;
+      --secondary: #e67e22;
+      --success: #27ae60;
+      --success-light: #2ecc71;
+      --gold: #f1c40f;
+      --bg: #f0f4fa;
+      --card-bg: #ffffff;
+      --text: #0b1e33;
+      --text-light: #4a5b72;
+      --border: #dee8f2;
+      --shadow: 0 30px 60px rgba(0,20,40,0.12);
+      --danger: #c44545;
+      --sidebar-width: 240px;
+    }
+    [data-theme="dark"] {
+      --bg: #121820;
+      --card-bg: #1a2633;
+      --text: #e8edf3;
+      --text-light: #8fa8c0;
+      --border: #2a3a4a;
+      --shadow: 0 30px 60px rgba(0,0,0,0.4);
+    }
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      transition: background 0.3s;
+    }
+    .app-wrapper {
+      max-width: 1400px;
+      width: 100%;
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      flex-shrink: 0;
+      background: var(--card-bg);
+      border-radius: 2rem;
+      padding: 1.5rem 1rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      position: sticky;
+      top: 2rem;
+      transition: background 0.3s, color 0.3s;
+    }
+    .sidebar .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    .sidebar .logo .icon-wrap {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+    .sidebar .logo h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sidebar .logo .sub {
+      font-size: 0.6rem;
+      color: var(--text-light);
+      -webkit-text-fill-color: var(--text-light);
+      display: block;
+      margin-top: -2px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.7rem 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: var(--text-light);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover { background: var(--bg); color: var(--text); }
+    .nav-item.active { background: var(--primary); color: white; }
+    .nav-item.active i { color: white; }
+    .nav-item i { width: 1.4rem; font-size: 1rem; color: var(--text-light); }
+    .nav-item .badge {
+      margin-left: auto;
+      background: var(--secondary);
+      color: white;
+      font-size: 0.6rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 20px;
+    }
+    .sidebar-footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .sidebar-footer .btn-icon {
+      background: var(--bg);
+      border: none;
+      border-radius: 10px;
+      padding: 0.4rem 0.7rem;
+      cursor: pointer;
+      color: var(--text);
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+    .sidebar-footer .btn-icon:hover { background: var(--border); }
+    .content {
+      flex: 1;
+      background: var(--card-bg);
+      border-radius: 2rem;
+      padding: 2rem 2.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: background 0.3s, color 0.3s;
+      min-height: 600px;
+    }
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .content-header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .content-header .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .card-premium {
+      background: var(--bg);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    .card-premium h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .card-premium h3 i { color: var(--primary-light); }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      background: var(--card-bg);
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      color: var(--text);
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 4px rgba(42,95,122,0.08);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+    .tag-group { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+    .tag {
+      background: var(--border);
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border);
+    }
+    .tag .remove { cursor: pointer; font-weight: 700; color: var(--text-light); padding: 0 2px; }
+    .tag .remove:hover { color: var(--danger); }
+    .btn {
+      padding: 0.6rem 1.4rem;
+      border: none;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: white;
+    }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      box-shadow: 0 4px 12px rgba(26,55,96,0.2);
+    }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(26,55,96,0.3); }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover:not(:disabled) { background: var(--bg); }
+    .btn-success {
+      background: linear-gradient(135deg, var(--success), var(--success-light));
+      box-shadow: 0 4px 12px rgba(39,174,96,0.2);
+    }
+    .btn-success:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(39,174,96,0.3); }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold), #f39c12);
+      box-shadow: 0 4px 12px rgba(241,196,15,0.2);
+    }
+    .btn-gold:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(241,196,15,0.3); }
+    .btn-block { width: 100%; justify-content: center; }
+    .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.75rem; }
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin: 1.2rem 0 0.5rem;
+    }
+    .day-card {
+      background: var(--bg);
+      border-radius: 1.2rem;
+      padding: 0.8rem 1rem 1rem;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .day-card:hover { border-color: var(--primary-light); }
+    .day-card .day {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.85rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.3rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .day-card .meal-item {
+      font-size: 0.75rem;
+      padding: 0.2rem 0;
+      color: var(--text);
+      border-bottom: 1px dotted var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.05rem;
+    }
+    .day-card .meal-item:last-child { border: none; }
+    .meal-item .meal-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .meal-item .time {
+      font-weight: 600;
+      color: var(--primary-light);
+      font-size: 0.55rem;
+      background: var(--border);
+      padding: 0.05rem 0.5rem;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .meal-item .food { font-weight: 500; flex: 1; font-size: 0.75rem; }
+    .meal-item .cal { 
+      color: var(--success); 
+      font-weight: 600; 
+      font-size: 0.6rem; 
+      background: rgba(39,174,96,0.1); 
+      padding: 0.05rem 0.5rem; 
+      border-radius: 20px; 
+    }
+    .meal-item .portion-detail {
+      font-size: 0.6rem;
+      color: var(--text-light);
+      padding-left: 1.8rem;
+    }
+    .meal-item .swap-btn {
+      background: var(--border);
+      border: none;
+      border-radius: 20px;
+      padding: 0.05rem 0.4rem;
+      font-size: 0.55rem;
+      cursor: pointer;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .meal-item .swap-btn:hover {
+      background: var(--primary-light);
+      color: white;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.8rem;
+      margin: 1rem 0;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      padding: 0.6rem 0.8rem;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .stat-card .number {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary-light);
+    }
+    .stat-card .label {
+      font-size: 0.6rem;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .macro-bar {
+      display: flex;
+      gap: 0.3rem;
+      margin: 0.2rem 0;
+      height: 5px;
+      border-radius: 3px;
+      overflow: hidden;
+      background: var(--border);
+    }
+    .macro-bar .protein { background: #e07c3c; }
+    .macro-bar .carbs { background: var(--primary-light); }
+    .macro-bar .fats { background: var(--gold); }
+    .shopping-list {
+      background: var(--bg);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .shopping-list h4 {
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    .shopping-list .category { margin: 0.4rem 0; }
+    .shopping-list .category-title {
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: var(--primary-light);
+      margin-bottom: 0.2rem;
+    }
+    .shopping-list .item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.15rem 0 0.15rem 1rem;
+      font-size: 0.8rem;
+      border-bottom: 1px dotted var(--border);
+    }
+    .shopping-list .item:last-child { border: none; }
+    .progress-tracking {
+      background: var(--bg);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+    }
+    .progress-tracking h4 {
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    .progress-entry {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .progress-entry input[type="date"],
+    .progress-entry input[type="number"] {
+      padding: 0.35rem 0.6rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 0.8rem;
+      flex: 1;
+      min-width: 100px;
+    }
+    .progress-entry input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+    }
+    .progress-list {
+      margin-top: 0.5rem;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .progress-list .entry {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.25rem 0.5rem;
+      border-bottom: 1px dotted var(--border);
+      font-size: 0.8rem;
+    }
+    .progress-list .entry:last-child { border-bottom: none; }
+    .progress-list .entry .date { color: var(--text-light); }
+    .progress-list .entry .weight { font-weight: 600; color: var(--primary-light); }
+    .progress-list .entry .delete-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 0.7rem;
+      padding: 0 0.3rem;
+    }
+    .progress-list .entry .delete-btn:hover { opacity: 0.7; }
+    .progress-chart {
+      margin-top: 0.5rem;
+      height: 50px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      padding: 0.3rem 0;
+    }
+    .progress-chart .bar {
+      flex: 1;
+      background: var(--primary-light);
+      border-radius: 3px 3px 0 0;
+      min-height: 4px;
+      transition: height 0.5s ease;
+      opacity: 0.7;
+      cursor: pointer;
+    }
+    .progress-chart .bar:hover { opacity: 1; }
+    .progress-stats {
+      font-size: 0.7rem;
+      color: var(--text-light);
+      text-align: center;
+      margin-top: 0.2rem;
+    }
+    @media (max-width: 860px) {
+      .app-wrapper { flex-direction: column; }
+      .sidebar {
+        width: 100%;
+        position: static;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 1rem 1.2rem;
+        gap: 0.5rem;
+      }
+      .sidebar .logo { padding-bottom: 0; border-bottom: none; margin-bottom: 0; }
+      .nav-item { padding: 0.4rem 0.8rem; font-size: 0.75rem; margin-bottom: 0; width: auto; }
+      .sidebar-footer { margin-top: 0; padding-top: 0; border-top: none; }
+      .content { padding: 1.2rem; }
+      .week-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 500px) {
+      .week-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+    .fade-in { animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s ease infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .text-muted { color: var(--text-light); }
+    .tip-box {
+      background: #fef9f0;
+      border-left: 4px solid var(--gold);
+      padding: 0.6rem 1rem;
+      border-radius: 0 0.8rem 0.8rem 0;
+      margin: 0.8rem 0;
+      font-size: 0.8rem;
+      color: #5a4a3a;
+    }
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 0.8rem 1.2rem;
+      border-radius: 12px;
+      background: var(--card-bg);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      font-weight: 500;
+      z-index: 1000;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+      max-width: 380px;
+      color: var(--text);
+      border-left: 4px solid var(--primary-light);
+      font-size: 0.85rem;
+    }
+    .notification.show { transform: translateX(0); }
+    .notification.error { border-left-color: var(--danger); color: var(--danger); }
+    .notification.success { border-left-color: var(--success); color: var(--success); }
+
+    .safety-box {
+      background: #fff7e6;
+      border-left: 4px solid var(--secondary);
+      padding: 0.7rem 1rem;
+      border-radius: 0 0.8rem 0.8rem 0;
+      margin: 0.8rem 0;
+      font-size: 0.78rem;
+      color: #5a3d1a;
+      line-height: 1.35;
+    }
+    [data-theme="dark"] .safety-box { background: #2a2116; color: #f1d2a8; }
+
+    .quality-box {
+      background: #eefaf2;
+      border-left: 4px solid var(--success);
+      padding: 0.7rem 1rem;
+      border-radius: 0 0.8rem 0.8rem 0;
+      margin: 0.8rem 0;
+      font-size: 0.78rem;
+      color: #1f5c35;
+      line-height: 1.35;
+    }
+    .quality-box.warn { background: #fff3f3; border-left-color: var(--danger); color: var(--danger); }
+    [data-theme="dark"] .quality-box { background: #13251a; color: #bff0ce; }
+    [data-theme="dark"] .quality-box.warn { background: #2a1717; color: #ffbcbc; }
+
+    .medical-box {
+      background: #eef4ff;
+      border-left: 4px solid var(--primary-light);
+      padding: 0.7rem 1rem;
+      border-radius: 0 0.8rem 0.8rem 0;
+      margin: 0.8rem 0;
+      font-size: 0.78rem;
+      color: #1a3a5c;
+      line-height: 1.35;
+    }
+    .audit-score {
+      display:inline-flex;align-items:center;gap:.4rem;font-weight:800;font-size:.9rem;
+      background:rgba(39,174,96,.12);color:var(--success);border-radius:999px;padding:.25rem .65rem;margin-left:.4rem;
+    }
+    .audit-score.warn { background:rgba(196,69,69,.1); color:var(--danger); }
+
+    .stale-plan {
+      border-left: 4px solid var(--danger);
+      background: rgba(196,69,69,0.08);
+      color: var(--danger);
+      padding: 0.6rem 0.9rem;
+      border-radius: 0 0.8rem 0.8rem 0;
+      margin: 0.8rem 0;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div id="notification" class="notification"></div>
+  <div class="app-wrapper">
+    <nav class="sidebar" id="sidebar">
+      <div class="logo">
+        <div class="icon-wrap"><i class="fas fa-utensils"></i></div>
+        <div>
+          <h2>NutriPlan Pro</h2>
+          <span class="sub">Plan alimentar inteligent</span>
+        </div>
+      </div>
+      <button class="nav-item active" data-section="personal">
+        <i class="fas fa-user"></i> Date personale
+      </button>
+      <button class="nav-item" data-section="meals">
+        <i class="fas fa-clock"></i> Ore mese
+      </button>
+      <button class="nav-item" data-section="weekly">
+        <i class="fas fa-calendar-week"></i> Plan săptămânal
+        <span class="badge">Nou</span>
+      </button>
+      <button class="nav-item" data-section="shopping">
+        <i class="fas fa-shopping-cart"></i> Listă cumpărături
+      </button>
+      <button class="nav-item" data-section="progress">
+        <i class="fas fa-chart-line"></i> Monitorizare
+      </button>
+      <div class="sidebar-footer">
+        <button class="btn-icon" id="themeToggle" title="Temă"><i class="fas fa-moon"></i></button>
+        <button class="btn-icon" id="langToggle" title="Limbă"><i class="fas fa-globe"></i></button>
+        <button class="btn-icon" id="exportPdfBtn" title="Exportă PDF"><i class="fas fa-file-pdf"></i></button>
+        <button class="btn-icon" id="exportPngBtn" title="Exportă PNG"><i class="fas fa-image"></i></button>
+      </div>
+    </nav>
+
+    <main class="content" id="content">
+      <!-- SECTION: PERSONAL -->
+      <div class="section active" id="section-personal">
+        <div class="content-header">
+          <h1><i class="fas fa-user-circle" style="color:var(--primary-light);"></i> Date personale</h1>
+          <div class="actions">
+            <button class="btn btn-primary" id="generateBtn">
+              <i class="fas fa-magic"></i> Generează plan
+            </button>
+          </div>
+        </div>
+        <div class="card-premium">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Greutate actuală (kg)</label>
+              <input type="number" id="currentWeight" value="72" step="0.5" min="30" max="250" />
+            </div>
+            <div class="form-group">
+              <label>Greutate țintă (kg)</label>
+              <input type="number" id="targetWeight" value="68" step="0.5" min="30" max="250" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Obiectiv</label>
+              <select id="goalType">
+                <option value="slabire">Slăbire</option>
+                <option value="mentinere" selected>Menținere</option>
+                <option value="crestere">Creștere (masă)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Sex</label>
+              <select id="gender">
+                <option value="male">Bărbat</option>
+                <option value="female">Femeie</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Termen obiectiv (săptămâni)</label>
+              <input type="number" id="targetWeeks" value="12" min="4" max="104" step="1" />
+            </div>
+            <div class="form-group">
+              <label>Tip gramaje</label>
+              <select id="portionMode">
+                <option value="gatit" selected>Gramaje aliment preparat/gătit</option>
+                <option value="crud">Gramaje aliment crud/uscat</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Vârstă (ani)</label>
+              <input type="number" id="age" value="30" min="15" max="100" />
+            </div>
+            <div class="form-group">
+              <label>Înălțime (cm)</label>
+              <input type="number" id="height" value="175" min="140" max="220" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nivel activitate</label>
+              <select id="activityLevel">
+                <option value="sedentar">Sedentar</option>
+                <option value="moderat" selected>Moderat</option>
+                <option value="activ">Activ</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Tip dietă</label>
+              <select id="dietType">
+                <option value="standard">Standard</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="vegan">Vegan</option>
+                <option value="keto">Keto</option>
+                <option value="mediteranean">Mediteranean</option>
+                <option value="highProtein">High Protein</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Profil medical / precauții</label>
+              <select id="medicalProfile">
+                <option value="none" selected>Fără afecțiuni declarate</option>
+                <option value="diabet">Diabet / control glicemic</option>
+                <option value="hipertensiune">Hipertensiune / sodiu redus</option>
+                <option value="renal">Boală renală / proteine moderate</option>
+                <option value="gastric">Gastrită / digestiv sensibil</option>
+                <option value="sarcina">Sarcină</option>
+                <option value="alaptare">Alăptare</option>
+                <option value="tca">Istoric tulburări alimentare</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Buget alimentar</label>
+              <select id="budgetMode">
+                <option value="economic">Economic</option>
+                <option value="standard" selected>Standard</option>
+                <option value="premium">Premium</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Restricții / alergii</label>
+            <input type="text" id="restrictions" placeholder="ex: lactoză, gluten, nuci" />
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-heart" style="color:#c44545;"></i> Alimente preferate <span style="font-size:0.6rem;color:var(--text-light);">(max 10)</span></label>
+            <div style="display:flex; gap:0.5rem;">
+              <input type="text" id="favInput" placeholder="ex: somon, avocado" style="flex:2;" />
+              <button class="btn btn-outline" id="addFavBtn" style="padding:0.3rem 1rem;font-size:0.8rem;">+</button>
+            </div>
+            <div id="favTags" class="tag-group"></div>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-ban" style="color:#b33;"></i> Alimente excluse <span style="font-size:0.6rem;color:var(--text-light);">(max 10)</span></label>
+            <div style="display:flex; gap:0.5rem;">
+              <input type="text" id="dislikeInput" placeholder="ex: broccoli, ficat" style="flex:2;" />
+              <button class="btn btn-outline" id="addDislikeBtn" style="padding:0.3rem 1rem;font-size:0.8rem;">+</button>
+            </div>
+            <div id="dislikeTags" class="tag-group"></div>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="number" id="bmiDisplay">24.2</div><div class="label">BMI</div></div>
+          <div class="stat-card"><div class="number" id="bmrDisplay">1750</div><div class="label">BMR (kcal)</div></div>
+          <div class="stat-card"><div class="number" id="tdeeDisplay">2713</div><div class="label">TDEE (kcal)</div></div>
+          <div class="stat-card"><div class="number" id="waterDisplay">2.5</div><div class="label">Apă (L)</div></div>
+        </div>
+      </div>
+
+      <!-- SECTION: MEALS -->
+      <div class="section" id="section-meals">
+        <div class="content-header">
+          <h1><i class="fas fa-clock" style="color:var(--primary-light);"></i> Setări ore mese</h1>
+        </div>
+        <div class="card-premium">
+          <div class="form-group">
+            <label>Număr mese pe zi</label>
+            <select id="mealsPerDay">
+              <option value="3">3 mese</option>
+              <option value="4">4 mese</option>
+              <option value="5" selected>5 mese</option>
+              <option value="6">6 mese</option>
+            </select>
+          </div>
+          <div style="margin-top:1rem;">
+            <div style="display:grid; grid-template-columns:80px 1fr 1fr; gap:0.5rem; font-size:0.7rem; font-weight:600; color:var(--text-light); padding:0.3rem 0; border-bottom:2px solid var(--border);">
+              <span>Ziua</span>
+              <span style="text-align:center;">Prima masă</span>
+              <span style="text-align:center;">Ultima masă</span>
+            </div>
+            <div id="timeRows"></div>
+            <div style="margin-top:0.6rem; font-size:0.65rem; color:var(--text-light);">
+              <i class="fas fa-info-circle"></i> Orele intermediare se distribuie automat.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: WEEKLY -->
+      <div class="section" id="section-weekly">
+        <div class="content-header">
+          <h1><i class="fas fa-calendar-week" style="color:var(--primary-light);"></i> Plan săptămânal</h1>
+          <div class="actions">
+            <button class="btn btn-success" id="exportPdfBtn2">
+              <i class="fas fa-file-pdf"></i> Exportă PDF
+            </button>
+          </div>
+        </div>
+        <div id="mealPlanContent" style="min-height: 100px;">
+          <p class="text-muted" style="padding: 0.8rem 0; color:var(--text-light);">Apasă „Generează plan” pentru a vedea sugestiile personalizate.</p>
+        </div>
+      </div>
+
+      <!-- SECTION: SHOPPING -->
+      <div class="section" id="section-shopping">
+        <div class="content-header">
+          <h1><i class="fas fa-shopping-cart" style="color:var(--primary-light);"></i> Listă cumpărături</h1>
+        </div>
+        <div id="shoppingListContent">
+          <p class="text-muted" style="padding: 0.8rem 0; color:var(--text-light);">Generează un plan alimentar pentru a vedea lista de cumpărături.</p>
+        </div>
+      </div>
+
+      <!-- SECTION: PROGRESS -->
+      <div class="section" id="section-progress">
+        <div class="content-header">
+          <h1><i class="fas fa-chart-line" style="color:var(--primary-light);"></i> Monitorizare progres</h1>
+        </div>
+        <div class="card-premium">
+          <div class="progress-entry">
+            <input type="date" id="progressDate" />
+            <input type="number" id="progressWeight" placeholder="Greutate (kg)" step="0.1" min="30" max="250" />
+            <button class="btn btn-success btn-sm" id="addProgressBtn"><i class="fas fa-plus"></i> Adaugă</button>
+          </div>
+          <div class="progress-list" id="progressList">
+            <div style="text-align:center;color:var(--text-light);font-size:0.8rem;padding:0.5rem;">Nicio înregistrare</div>
+          </div>
+          <div class="progress-chart" id="progressChart"></div>
+          <div class="progress-stats" id="progressStats">0 înregistrări</div>
+        </div>
+        <div class="card-premium">
+          <h3><i class="fas fa-info-circle"></i> Statistici progres</h3>
+          <div class="stats-grid">
+            <div class="stat-card"><div class="number" id="startWeightDisplay">—</div><div class="label">Greutate start</div></div>
+            <div class="stat-card"><div class="number" id="currentWeightDisplay">—</div><div class="label">Greutate curentă</div></div>
+            <div class="stat-card"><div class="number" id="totalChangeDisplay">—</div><div class="label">Schimbare totală</div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+(function(){
+'use strict';
+const tr={ro:{personalData:'Date personale',mealTimes:'Ore mese',weeklyPlan:'Plan săptămânal',shoppingList:'Listă cumpărături',progress:'Monitorizare progres',generate:'Generează plan',generating:'Generare...',exportPdf:'Exportă PDF',exportPng:'Exportă PNG',badge:'Nou',noPlan:'Apasă „Generează plan” pentru a vedea sugestiile personalizate.',noShopping:'Generează un plan alimentar pentru a vedea lista de cumpărături.',weight:'Greutate actuală (kg)',target:'Greutate țintă (kg)',goal:'Obiectiv',gender:'Sex',age:'Vârstă (ani)',height:'Înălțime (cm)',activity:'Nivel activitate',diet:'Tip dietă',targetWeeks:'Termen obiectiv (săptămâni)',portionMode:'Tip gramaje',medicalProfile:'Profil medical / precauții',budgetMode:'Buget alimentar',medicalDisclaimer:'Acest profil aplică reguli generale de siguranță și nu înlocuiește recomandarea medicului.',auditTitle:'Audit nutrițional',micros:'Micronutrienți',adaptiveAdvice:'Recomandare progres',restrictions:'Restricții / alergii',fav:'Alimente preferate',dislike:'Alimente excluse',max10:'(max 10)',mealsNo:'Număr mese pe zi',firstMeal:'Prima masă',lastMeal:'Ultima masă',day:'Ziua',autoTimes:'Orele intermediare se distribuie automat.',progressTitle:'Monitorizare progres',add:'Adaugă',noEntries:'Nicio înregistrare',startWeight:'Greutate start',currentWeight:'Greutate curentă',totalChange:'Schimbare totală',bmi:'BMI',bmr:'BMR (kcal)',tdee:'TDEE (kcal)',water:'Apă (L)',calories:'Calorii',protein:'Proteine',carbs:'Carbo',fats:'Grăsimi',waterRec:'Apă recomandată',mealsDay:'mese/zi',weeklyShopping:'Listă cumpărături săptămânală',estimatedCost:'Cost estimativ',safetyTitle:'Verificare siguranță',macroCheck:'Verificare macro-uri',macroOk:'Planul este în toleranțe bune față de țintă.',macroWarn:'Planul are abateri mai mari la calorii sau macro-uri; regenerează sau schimbă câteva mese.',safePace:'Ritm estimat',adjustedGoal:'Obiectivul introdus este prea agresiv. Caloriile au fost ajustate la o limită mai sigură.',portionNote:'Notă: valorile nutriționale sunt orientative; unele alimente sunt estimate ca preparate/gătite, iar cerealele/oleaginoasele ca produs uscat.',stalePlan:'Planul afișat poate fi neactualizat. Corectează datele și regenerează planul.',tip:'Sfat',restr:'Restricții',dietWord:'Dietă',success:'Plan generat cu succes! 🎉',makePlanFirst:'Generează mai întâi un plan alimentar!',pdfing:'Se generează PDF-ul...',pnging:'Se generează PNG-ul...',pdfOk:'PDF exportat cu succes! 📄',pngOk:'PNG exportat cu succes! 🖼️',exportErr:'A apărut o eroare la export.',foodAdd:'adăugat la preferate.',foodDis:'adăugat la excluderi.',enterFood:'Introdu un aliment.',maxFav:'Maxim 10 alimente preferate.',maxDis:'Maxim 10 alimente excluse.',alreadyFav:'Alimentul este deja în listă.',alreadyDis:'Alimentul este deja exclus.',timeErr:'Prima masă trebuie să fie înainte de ultima masă!',validWeight:'Greutatea trebuie să fie între 30 și 250 kg.',validTarget:'Greutatea țintă trebuie să fie între 30 și 250 kg.',validAge:'Vârsta trebuie să fie între 15 și 100 de ani.',validHeight:'Înălțimea trebuie să fie între 140 și 220 cm.',lossErr:'Pentru slăbire, greutatea țintă trebuie să fie mai mică.',gainErr:'Pentru creștere, greutatea țintă trebuie să fie mai mare.',notEnough:'Nu există suficiente alimente disponibile. Elimină câteva restricții.',swapped:'Masă schimbată! Lista de cumpărături a fost actualizată.',noAlt:'Nu există alternative disponibile.',selectDate:'Selectează o dată.',validProgress:'Introdu o greutate validă (30-250 kg).',existsDate:'Există deja o înregistrare pentru această dată.',deleted:'Înregistrare ștearsă.',addedEntry:'Înregistrare adăugată',records:'înregistrări',lost:'kg pierduți',gained:'kg câștigați',stable:'Stabil',days:['Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă','Duminică'],icons:['🍳','🥜','🍗','🍎','🥗','🍿'],cats:['🥩 Carne/Proteine','🥬 Legume','🍎 Fructe','🥛 Lactate/Alternative','🛒 Diverse'],tips:{slabire:'Menține un deficit caloric moderat și crește aportul de proteine pentru a păstra masa musculară.',crestere:'Asigură un surplus caloric și proteine la fiecare masă pentru creștere musculară.',mentinere:'Păstrează echilibrul caloric și prioritizează alimentele integrale.'}},en:{personalData:'Personal data',mealTimes:'Meal times',weeklyPlan:'Weekly plan',shoppingList:'Shopping list',progress:'Progress tracking',generate:'Generate plan',generating:'Generating...',exportPdf:'Export PDF',exportPng:'Export PNG',badge:'New',noPlan:'Press “Generate plan” to see personalized suggestions.',noShopping:'Generate a meal plan to see the shopping list.',weight:'Current weight (kg)',target:'Target weight (kg)',goal:'Goal',gender:'Gender',age:'Age (years)',height:'Height (cm)',activity:'Activity level',diet:'Diet type',targetWeeks:'Goal timeframe (weeks)',portionMode:'Portion basis',medicalProfile:'Medical profile / precautions',budgetMode:'Food budget',medicalDisclaimer:'This profile applies general safety rules and does not replace medical advice.',auditTitle:'Nutrition audit',micros:'Micronutrients',adaptiveAdvice:'Progress recommendation',restrictions:'Restrictions / allergies',fav:'Favorite foods',dislike:'Excluded foods',max10:'(max 10)',mealsNo:'Meals per day',firstMeal:'First meal',lastMeal:'Last meal',day:'Day',autoTimes:'Intermediate times are distributed automatically.',progressTitle:'Progress tracking',add:'Add',noEntries:'No entries',startWeight:'Start weight',currentWeight:'Current weight',totalChange:'Total change',bmi:'BMI',bmr:'BMR (kcal)',tdee:'TDEE (kcal)',water:'Water (L)',calories:'Calories',protein:'Protein',carbs:'Carbs',fats:'Fats',waterRec:'Recommended water',mealsDay:'meals/day',weeklyShopping:'Weekly shopping list',estimatedCost:'Estimated cost',safetyTitle:'Safety check',macroCheck:'Macro check',macroOk:'The plan is within good tolerances versus the target.',macroWarn:'The plan has larger calorie or macro deviations; regenerate or swap some meals.',safePace:'Estimated pace',adjustedGoal:'The requested goal is too aggressive. Calories were adjusted to a safer limit.',portionNote:'Note: nutrition values are indicative; some foods are estimated as prepared/cooked, while grains/nuts/seeds are dry product estimates.',stalePlan:'The displayed plan may be outdated. Correct the data and regenerate the plan.',tip:'Tip',restr:'Restrictions',dietWord:'Diet',success:'Plan generated successfully! 🎉',makePlanFirst:'Generate a meal plan first!',pdfing:'Generating PDF...',pnging:'Generating PNG...',pdfOk:'PDF exported successfully! 📄',pngOk:'PNG exported successfully! 🖼️',exportErr:'Export error.',foodAdd:'added to favorites.',foodDis:'added to exclusions.',enterFood:'Enter a food.',maxFav:'Maximum 10 favorite foods.',maxDis:'Maximum 10 excluded foods.',alreadyFav:'This food is already in the list.',alreadyDis:'This food is already excluded.',timeErr:'The first meal must be before the last meal!',validWeight:'Weight must be between 30 and 250 kg.',validTarget:'Target weight must be between 30 and 250 kg.',validAge:'Age must be between 15 and 100.',validHeight:'Height must be between 140 and 220 cm.',lossErr:'For weight loss, target weight must be lower.',gainErr:'For gain, target weight must be higher.',notEnough:'Not enough available foods. Remove some restrictions.',swapped:'Meal changed! Shopping list updated.',noAlt:'No alternatives available.',selectDate:'Select a date.',validProgress:'Enter a valid weight (30-250 kg).',existsDate:'An entry already exists for this date.',deleted:'Entry deleted.',addedEntry:'Entry added',records:'records',lost:'kg lost',gained:'kg gained',stable:'Stable',days:['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],icons:['🍳','🥜','🍗','🍎','🥗','🍿'],cats:['🥩 Meat/Protein','🥬 Vegetables','🍎 Fruit','🥛 Dairy/Alternatives','🛒 Other'],tips:{slabire:'Keep a moderate calorie deficit and increase protein to preserve muscle mass.',crestere:'Keep a calorie surplus and include protein at every meal for muscle gain.',mentinere:'Maintain calorie balance and prioritize whole foods.'}}};
+let lang='ro'; const $=id=>document.getElementById(id), T=k=>tr[lang][k]||k;
+const state={favorites:['somon','avocado','ouă','iaurt grecesc'],dislikes:['ciuperci','mazăre','ficat'],timeSettings:{},darkMode:false,progress:[],currentPlan:null,isGenerating:false};
+const dom={favInput:$('favInput'),dislikeInput:$('dislikeInput'),favTags:$('favTags'),dislikeTags:$('dislikeTags'),addFavBtn:$('addFavBtn'),addDislikeBtn:$('addDislikeBtn'),generateBtn:$('generateBtn'),mealPlanContent:$('mealPlanContent'),shoppingListContent:$('shoppingListContent'),exportPdfBtn:$('exportPdfBtn'),exportPdfBtn2:$('exportPdfBtn2'),exportPngBtn:$('exportPngBtn'),timeRows:$('timeRows'),currentWeight:$('currentWeight'),targetWeight:$('targetWeight'),goalType:$('goalType'),activityLevel:$('activityLevel'),restrictions:$('restrictions'),age:$('age'),height:$('height'),gender:$('gender'),dietType:$('dietType'),targetWeeks:$('targetWeeks'),portionMode:$('portionMode'),medicalProfile:$('medicalProfile'),budgetMode:$('budgetMode'),mealsPerDay:$('mealsPerDay'),notification:$('notification'),themeToggle:$('themeToggle'),langToggle:$('langToggle'),bmiDisplay:$('bmiDisplay'),bmrDisplay:$('bmrDisplay'),tdeeDisplay:$('tdeeDisplay'),waterDisplay:$('waterDisplay'),progressDate:$('progressDate'),progressWeight:$('progressWeight'),addProgressBtn:$('addProgressBtn'),progressList:$('progressList'),progressChart:$('progressChart'),progressStats:$('progressStats'),startWeightDisplay:$('startWeightDisplay'),currentWeightDisplay:$('currentWeightDisplay'),totalChangeDisplay:$('totalChangeDisplay')};
+const foods={
+'pui':{ro:'piept de pui',en:'chicken breast',cat:'protein',diets:['standard','keto','mediteranean','highProtein'],kcal:165,p:31,c:0,f:3.6,price:35,unit:'kg'},'curcan':{ro:'curcan',en:'turkey',cat:'protein',diets:['standard','keto','highProtein'],kcal:135,p:29,c:0,f:1,price:40,unit:'kg'},'somon':{ro:'somon',en:'salmon',cat:'protein',diets:['standard','keto','mediteranean','highProtein'],kcal:208,p:20,c:0,f:13,price:60,unit:'kg'},'vita':{ro:'vită slabă',en:'lean beef',cat:'protein',diets:['standard','keto','highProtein'],kcal:170,p:26,c:0,f:7,price:45,unit:'kg'},'ton':{ro:'ton',en:'tuna',cat:'protein',diets:['standard','keto','mediteranean','highProtein'],kcal:132,p:29,c:0,f:1,price:50,unit:'kg'},'oua':{ro:'ouă',en:'eggs',cat:'protein',diets:['standard','vegetarian','keto','mediteranean','highProtein'],kcal:143,p:13,c:1.1,f:9.5,price:1.5,unit:'buc',gPerUnit:50,allergens:['oua']},'iaurt_grecesc':{ro:'iaurt grecesc',en:'Greek yogurt',cat:'dairy',diets:['standard','vegetarian','mediteranean','highProtein'],kcal:59,p:10,c:3.6,f:0.4,price:15,unit:'kg',allergens:['lactoza']},'cottage':{ro:'brânză cottage',en:'cottage cheese',cat:'dairy',diets:['standard','vegetarian','highProtein'],kcal:98,p:11,c:3.4,f:4.3,price:20,unit:'kg',allergens:['lactoza']},'feta':{ro:'brânză feta',en:'feta cheese',cat:'dairy',diets:['vegetarian','mediteranean'],kcal:264,p:14,c:4,f:21,price:35,unit:'kg',allergens:['lactoza']},'tofu':{ro:'tofu',en:'tofu',cat:'protein',diets:['standard','vegetarian','vegan','highProtein'],kcal:144,p:15,c:3,f:8,price:25,unit:'kg',allergens:['soia']},'tempeh':{ro:'tempeh',en:'tempeh',cat:'protein',diets:['vegetarian','vegan','highProtein'],kcal:193,p:19,c:9,f:11,price:30,unit:'kg',allergens:['soia']},'linte':{ro:'linte',en:'lentils',cat:'protein',diets:['vegetarian','vegan','mediteranean'],kcal:116,p:9,c:20,f:0.4,price:15,unit:'kg'},'naut':{ro:'năut',en:'chickpeas',cat:'protein',diets:['vegetarian','vegan','mediteranean'],kcal:164,p:9,c:27,f:2.6,price:12,unit:'kg'},'orez':{ro:'orez basmati',en:'basmati rice',cat:'carb',diets:['standard','vegetarian','vegan','mediteranean','highProtein'],kcal:130,p:2.7,c:28,f:0.3,price:10,unit:'kg'},'cartof_dulce':{ro:'cartof dulce',en:'sweet potato',cat:'carb',diets:['standard','vegetarian','vegan','mediteranean','highProtein'],kcal:86,p:1.6,c:20,f:0.1,price:8,unit:'kg'},'quinoa':{ro:'quinoa',en:'quinoa',cat:'carb',diets:['standard','vegetarian','vegan','mediteranean','highProtein'],kcal:120,p:4.4,c:21,f:1.9,price:25,unit:'kg'},'paste':{ro:'paste integrale',en:'whole wheat pasta',cat:'carb',diets:['standard','vegetarian','vegan','mediteranean'],kcal:124,p:5,c:27,f:0.8,price:12,unit:'kg',allergens:['gluten']},'ovaz':{ro:'ovăz',en:'oats',cat:'carb',diets:['standard','vegetarian','vegan','mediteranean','highProtein'],kcal:389,p:17,c:66,f:7,price:8,unit:'kg',allergens:['gluten']},'bulgur':{ro:'bulgur',en:'bulgur',cat:'carb',diets:['standard','vegetarian','vegan'],kcal:83,p:3,c:19,f:0.2,price:10,unit:'kg',allergens:['gluten']},'broccoli':{ro:'broccoli',en:'broccoli',cat:'veg',diets:['standard','vegetarian','vegan','keto','mediteranean','highProtein'],kcal:35,p:2.4,c:7,f:0.4,price:10,unit:'kg'},'spanac':{ro:'spanac',en:'spinach',cat:'veg',diets:['standard','vegetarian','vegan','keto','mediteranean','highProtein'],kcal:23,p:2.9,c:3.6,f:0.4,price:12,unit:'kg'},'salata':{ro:'salată',en:'lettuce',cat:'veg',diets:['standard','vegetarian','vegan','keto','mediteranean','highProtein'],kcal:15,p:1.4,c:2.9,f:0.2,price:8,unit:'kg'},'castravete':{ro:'castravete',en:'cucumber',cat:'veg',diets:['standard','vegetarian','vegan','keto','mediteranean'],kcal:16,p:0.7,c:3.6,f:0.1,price:6,unit:'kg'},'ardei':{ro:'ardei',en:'bell pepper',cat:'veg',diets:['standard','vegetarian','vegan','mediteranean','highProtein'],kcal:31,p:1,c:6,f:0.3,price:8,unit:'kg'},'rosii':{ro:'roșii',en:'tomatoes',cat:'veg',diets:['standard','vegetarian','vegan','mediteranean'],kcal:18,p:0.9,c:3.9,f:0.2,price:7,unit:'kg'},'dovlecei':{ro:'dovlecei',en:'zucchini',cat:'veg',diets:['standard','vegetarian','vegan','keto','mediteranean','highProtein'],kcal:17,p:1.2,c:3.1,f:0.3,price:8,unit:'kg'},'morcov':{ro:'morcov',en:'carrot',cat:'veg',diets:['standard','vegetarian','vegan','mediteranean'],kcal:41,p:0.9,c:10,f:0.2,price:5,unit:'kg'},'mar':{ro:'măr',en:'apple',cat:'fruit',diets:['standard','vegetarian','vegan','mediteranean','highProtein'],kcal:52,p:0.3,c:14,f:0.2,price:6,unit:'kg'},'banana':{ro:'banană',en:'banana',cat:'fruit',diets:['standard','vegetarian','vegan','highProtein'],kcal:89,p:1.1,c:23,f:0.3,price:8,unit:'kg'},'portocala':{ro:'portocală',en:'orange',cat:'fruit',diets:['standard','vegetarian','vegan','mediteranean','highProtein'],kcal:47,p:0.9,c:12,f:0.1,price:7,unit:'kg'},'kiwi':{ro:'kiwi',en:'kiwi',cat:'fruit',diets:['standard','vegetarian','vegan','mediteranean','highProtein'],kcal:61,p:1.1,c:15,f:0.5,price:12,unit:'kg'},'afine':{ro:'afine',en:'blueberries',cat:'fruit',diets:['standard','vegetarian','vegan','keto','mediteranean','highProtein'],kcal:57,p:0.7,c:14,f:0.3,price:25,unit:'kg'},'capsuni':{ro:'căpșuni',en:'strawberries',cat:'fruit',diets:['standard','vegetarian','vegan','keto','mediteranean'],kcal:32,p:0.7,c:7.7,f:0.3,price:20,unit:'kg'},'avocado':{ro:'avocado',en:'avocado',cat:'fat',diets:['standard','vegetarian','vegan','keto','mediteranean','highProtein'],kcal:160,p:2,c:9,f:15,price:8,unit:'buc',gPerUnit:170},'nuci':{ro:'nuci',en:'walnuts',cat:'fat',diets:['standard','vegetarian','vegan','keto','mediteranean','highProtein'],kcal:654,p:15,c:14,f:65,price:40,unit:'kg',allergens:['nuci']},'migdale':{ro:'migdale',en:'almonds',cat:'fat',diets:['standard','vegetarian','vegan','keto','mediteranean','highProtein'],kcal:579,p:21,c:22,f:50,price:45,unit:'kg',allergens:['nuci']},'chia':{ro:'semințe de chia',en:'chia seeds',cat:'fat',diets:['standard','vegetarian','vegan','keto','mediteranean','highProtein'],kcal:486,p:17,c:42,f:31,price:30,unit:'kg'},'ulei':{ro:'ulei de măsline',en:'olive oil',cat:'fat',diets:['standard','vegetarian','vegan','keto','mediteranean'],kcal:884,p:0,c:0,f:100,price:30,unit:'L',gPerUnit:920},'hummus':{ro:'hummus',en:'hummus',cat:'protein',diets:['standard','vegetarian','vegan','mediteranean'],kcal:166,p:8,c:14,f:10,price:20,unit:'kg'},'lapte_veg':{ro:'lapte vegetal',en:'plant milk',cat:'dairy',diets:['vegan','vegetarian','standard'],kcal:45,p:1,c:3,f:2,price:12,unit:'L',gPerUnit:1000},'proteine':{ro:'pudră proteică',en:'protein powder',cat:'protein',diets:['standard','vegetarian','highProtein'],kcal:400,p:80,c:8,f:6,price:100,unit:'kg',allergens:['lactoza']},'unt_arahide':{ro:'unt de arahide',en:'peanut butter',cat:'fat',diets:['standard','vegetarian','vegan','highProtein'],kcal:588,p:25,c:20,f:50,price:35,unit:'kg',allergens:['arahide']},'cod':{ro:'cod',en:'cod',cat:'protein',diets:['standard','mediteranean','highProtein'],kcal:82,p:18,c:0,f:.7,price:45,unit:'kg',allergens:['peste']},'pastrav':{ro:'păstrăv',en:'trout',cat:'protein',diets:['standard','keto','mediteranean','highProtein'],kcal:148,p:20,c:0,f:7,price:48,unit:'kg',allergens:['peste']},'macrou':{ro:'macrou',en:'mackerel',cat:'protein',diets:['standard','keto','mediteranean'],kcal:205,p:19,c:0,f:14,price:38,unit:'kg',allergens:['peste']},'creveti':{ro:'creveți',en:'shrimp',cat:'protein',diets:['standard','keto','mediteranean','highProtein'],kcal:99,p:24,c:.2,f:.3,price:70,unit:'kg',allergens:['fructe_mare']},'fasole':{ro:'fasole',en:'beans',cat:'protein',diets:['vegetarian','vegan','mediteranean'],kcal:127,p:9,c:23,f:.5,price:12,unit:'kg'},'edamame':{ro:'edamame',en:'edamame',cat:'protein',diets:['vegetarian','vegan','highProtein'],kcal:121,p:12,c:9,f:5,price:30,unit:'kg',allergens:['soia']},'orez_brun':{ro:'orez brun',en:'brown rice',cat:'carb',diets:['standard','vegetarian','vegan','mediteranean','highProtein'],kcal:111,p:2.6,c:23,f:.9,price:12,unit:'kg'},'cuscus':{ro:'cuscus',en:'couscous',cat:'carb',diets:['standard','vegetarian','vegan','mediteranean'],kcal:112,p:3.8,c:23,f:.2,price:11,unit:'kg',allergens:['gluten']},'hrisca':{ro:'hrișcă',en:'buckwheat',cat:'carb',diets:['standard','vegetarian','vegan','highProtein'],kcal:92,p:3.4,c:20,f:.6,price:15,unit:'kg'},'varza':{ro:'varză',en:'cabbage',cat:'veg',diets:['standard','vegetarian','vegan','keto','mediteranean'],kcal:25,p:1.3,c:6,f:.1,price:5,unit:'kg'},'conopida':{ro:'conopidă',en:'cauliflower',cat:'veg',diets:['standard','vegetarian','vegan','keto','mediteranean','highProtein'],kcal:25,p:1.9,c:5,f:.3,price:10,unit:'kg'},'sparanghel':{ro:'sparanghel',en:'asparagus',cat:'veg',diets:['standard','vegetarian','vegan','keto','mediteranean','highProtein'],kcal:20,p:2.2,c:3.9,f:.1,price:28,unit:'kg'},'pere':{ro:'pere',en:'pears',cat:'fruit',diets:['standard','vegetarian','vegan','mediteranean'],kcal:57,p:.4,c:15,f:.1,price:8,unit:'kg'},'zmeura':{ro:'zmeură',en:'raspberries',cat:'fruit',diets:['standard','vegetarian','vegan','keto','mediteranean'],kcal:52,p:1.2,c:12,f:.7,price:35,unit:'kg'},'mango':{ro:'mango',en:'mango',cat:'fruit',diets:['standard','vegetarian','vegan','mediteranean'],kcal:60,p:.8,c:15,f:.4,price:18,unit:'kg'}};
+function foodName(id){return foods[id]?.[lang]||id} function round5(x){return Math.max(5,Math.round(x/5)*5)}
+function mealMacros(ings){return ings.reduce((a,i)=>{let f=foods[i.id],g=i.g; a.kcal+=f.kcal*g/100;a.p+=f.p*g/100;a.c+=f.c*g/100;a.f+=f.f*g/100;return a},{kcal:0,p:0,c:0,f:0})}
+function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+function restricted(id,restr){const f=foods[id]; const r=norm(restr); if(!r) return false; const alls=(f.allergens||[]).map(norm); const has=(...words)=>words.some(w=>r.includes(norm(w))); return (has('lacto','lapte','lactate','branza','iaurt','dairy')&&alls.includes('lactoza'))||(has('gluten','grau','paste','paine','wheat')&&alls.includes('gluten'))||(has('nuci','nuts','migdale','alune')&&alls.includes('nuci'))||(has('arahide','peanut')&&alls.includes('arahide'))||(has('soia','soya','soy')&&alls.includes('soia'))||(has('oua','ou','egg')&&alls.includes('oua'))||(has('peste','fish')&&alls.includes('peste'))||(has('fructe de mare','creveti','shrimp','shellfish')&&alls.includes('fructe_mare'))}
+function available(cat,data){return Object.keys(foods).filter(id=>foods[id].cat===cat&&foods[id].diets.includes(data.dietType)&&!restricted(id,data.restrictions)&&!state.dislikes.some(d=>norm(foodName(id)).includes(norm(d))||norm(id).includes(norm(d))))}
+function pick(cat,data,used=[]){let arr=available(cat,data); if(!arr.length)return null; arr=arr.map(id=>{let score=1; if(state.favorites.some(f=>norm(foodName(id)).includes(norm(f))||norm(id).includes(norm(f))))score+=5; if(used.includes(id))score-=2; return {id,score}}).sort((a,b)=>b.score-a.score); let max=arr[0].score, top=arr.filter(x=>x.score===max); return top[Math.floor(Math.random()*top.length)].id}
+function portionForMacro(id,macro,grams,capMin=20,capMax=350){let f=foods[id], per=f[macro]||0; if(per<=0) return capMin; return Math.min(capMax,Math.max(capMin,round5(grams*100/per)))}
+
+function macroTargetsForMeal(cal,data){
+  let keto=data.dietType==='keto', vegan=data.dietType==='vegan';
+  let pPct=keto?.25:(data.dietType==='highProtein'?.40:.30); if(data.medicalProfile==='renal') pPct=Math.min(pPct,.22);
+  let cPct=keto?.10:(vegan?.50:.45);
+  let fPct=keto?.65:.25;
+  return {kcal:cal,p:(cal*pPct)/4,c:(cal*cPct)/4,f:(cal*fPct)/9};
+}
+function macroScore(ings,target){
+  let m=mealMacros(ings);
+  return Math.abs(m.kcal-target.kcal)*1.2+Math.abs(m.p-target.p)*10+Math.abs(m.c-target.c)*4+Math.abs(m.f-target.f)*8;
+}
+function optimizeMealIngredients(ings,target){
+  ings=ings.filter(i=>foods[i.id]).map(i=>({id:i.id,g:Math.max(5,Math.min(500,round5(i.g)))}));
+  if(!ings.length)return ings;
+  let cur=mealMacros(ings).kcal;
+  if(cur>0){let scale=target.kcal/cur; ings=ings.map(i=>({id:i.id,g:Math.max(5,Math.min(500,round5(i.g*scale)))}));}
+  let best=macroScore(ings,target);
+  for(let iter=0;iter<55;iter++){
+    let improved=false;
+    for(let idx=0;idx<ings.length;idx++){
+      for(let step of [10,-10,5,-5]){
+        let trial=ings.map(x=>({...x}));
+        trial[idx].g=Math.max(5,Math.min(500,round5(trial[idx].g+step)));
+        let sc=macroScore(trial,target);
+        if(sc+0.01<best){ings=trial;best=sc;improved=true;}
+      }
+    }
+    if(!improved)break;
+  }
+  return ings;
+}
+function dayMacroTargets(data){
+  let target=targetCal(data);
+  let t=macroTargetsForMeal(target,data);
+  return {kcal:target,p:t.p,c:t.c,f:t.f};
+}
+function planQualityHTML(plan,data){
+  let target=dayMacroTargets(data);
+  let totals=plan.flatMap(d=>d.meals).reduce((a,m)=>{a.kcal+=m.macros.kcal;a.p+=m.macros.p;a.c+=m.macros.c;a.f+=m.macros.f;return a},{kcal:0,p:0,c:0,f:0});
+  let avg={kcal:totals.kcal/7,p:totals.p/7,c:totals.c/7,f:totals.f/7};
+  let devK=Math.abs(avg.kcal-target.kcal)/target.kcal;
+  let devP=Math.abs(avg.p-target.p)/Math.max(1,target.p);
+  let devC=Math.abs(avg.c-target.c)/Math.max(1,target.c);
+  let devF=Math.abs(avg.f-target.f)/Math.max(1,target.f);
+  let warn=devK>.07||devP>.18||devC>.22||devF>.22;
+  return `<div class="quality-box ${warn?'warn':''}"><strong>✅ ${T('macroCheck')}:</strong> ${warn?T('macroWarn'):T('macroOk')}<br>${T('calories')}: ${Math.round(avg.kcal)} / ${Math.round(target.kcal)} kcal · ${T('protein')}: ${Math.round(avg.p)} / ${Math.round(target.p)}g · ${T('carbs')}: ${Math.round(avg.c)} / ${Math.round(target.c)}g · ${T('fats')}: ${Math.round(avg.f)} / ${Math.round(target.f)}g</div>`;
+}
+function buildMeal(type,cal,data,used){let keto=data.dietType==='keto', vegan=data.dietType==='vegan'; let ids={p:pick('protein',data,used.p),c:pick('carb',data,used.c),v:pick('veg',data,used.v),fr:pick('fruit',data,used.fr),fat:pick('fat',data,used.fat),d:pick('dairy',data,used.d)}; let mt=macroTargetsForMeal(cal,data), pG=mt.p, cG=mt.c, fG=mt.f; let ings=[];
+ if(type==='breakfast'){ if(keto){ings=[{id:ids.p||'oua',g:100},{id:ids.fat||'avocado',g:90},{id:ids.v||'spanac',g:80}]} else if(vegan){ings=[{id:ids.c||'ovaz',g:portionForMacro(ids.c||'ovaz','c',cG*.65,30,120)},{id:ids.fr||'afine',g:120},{id:'lapte_veg',g:200},{id:ids.fat||'chia',g:15}]} else {ings=[{id:ids.d||'iaurt_grecesc',g:portionForMacro(ids.d||'iaurt_grecesc','p',pG*.75,100,300)},{id:ids.fr||'afine',g:120},{id:ids.fat||'nuci',g:20}]}}
+ else if(type==='snack'){ if(keto) ings=[{id:ids.fat||'avocado',g:80},{id:ids.fat==='avocado'?'nuci':ids.fat||'nuci',g:20}]; else if(vegan) ings=[{id:'hummus',g:100},{id:ids.v||'castravete',g:150}]; else if(data.dietType==='highProtein') ings=[{id:ids.d||'iaurt_grecesc',g:200},{id:'proteine',g:20}]; else ings=[{id:ids.fr||'mar',g:150},{id:ids.fat||'migdale',g:20}]}
+ else { let protein=ids.p|| (vegan?'tofu':'pui'); let carb=ids.c||'orez'; let veg=ids.v||'broccoli'; let fat=ids.fat||'ulei'; if(keto) ings=[{id:protein,g:portionForMacro(protein,'p',pG,80,220)},{id:veg,g:160},{id:fat,g:25}]; else ings=[{id:protein,g:portionForMacro(protein,'p',pG,80,250)},{id:carb,g:portionForMacro(carb,'c',cG*.85,80,260)},{id:veg,g:180},{id:fat,g:10}] }
+ ings=optimizeMealIngredients(ings,mt);
+ let macrosFinal=mealMacros(ings);
+ return {type,ingredients:ings,calories:Math.round(macrosFinal.kcal),macros:macrosFinal,targetCalories:Math.round(cal)} }
+function calcBMR(w,h,a,g){return g==='male'?10*w+6.25*h-5*a+5:10*w+6.25*h-5*a-161} function mult(a){return {sedentar:1.2,moderat:1.55,activ:1.725}[a]||1.55} function water(w){return Math.round(w*35)/1000} function bmi(w,h){let m=h/100;return Math.round(w/(m*m)*10)/10}
+function caloriePolicy(d){
+  let bmr=calcBMR(d.weight,d.height,d.age,d.gender), tdee=bmr*mult(d.activity);
+  let minCal=d.gender==='male'?1600:1400; if(d.medicalProfile==='sarcina') minCal=Math.max(minCal,1800); if(d.medicalProfile==='alaptare') minCal=Math.max(minCal,2000); if(d.medicalProfile==='tca') minCal=Math.max(minCal,1800); let maxDef=1000, maxSurplus=500, requestedDelta=0, adjusted=false;
+  if(d.goal==='slabire'){
+    let kg=Math.max(0,d.weight-d.target); requestedDelta=(kg*7700)/(Math.max(4,d.targetWeeks||12)*7);
+    if(requestedDelta>maxDef){requestedDelta=maxDef; adjusted=true;}
+    if(tdee-requestedDelta<minCal){requestedDelta=Math.max(0,tdee-minCal); adjusted=true;}
+    if(requestedDelta<250 && kg>0){requestedDelta=Math.min(500,Math.max(250,requestedDelta)); if(tdee-requestedDelta<minCal) requestedDelta=Math.max(0,tdee-minCal);}
+  } else if(d.goal==='crestere'){
+    let kg=Math.max(0,d.target-d.weight); requestedDelta=(kg*7700)/(Math.max(4,d.targetWeeks||12)*7);
+    if(requestedDelta>maxSurplus){requestedDelta=maxSurplus; adjusted=true;}
+  }
+  let target=d.goal==='slabire'?tdee-requestedDelta:(d.goal==='crestere'?tdee+requestedDelta:tdee);
+  if(d.dietType==='keto')target*=.95;
+  if(d.dietType==='highProtein')target*=1.03;
+  target=Math.max(minCal,Math.round(target));
+  let weeklyKg=d.goal==='slabire'?((tdee-target)*7/7700):(d.goal==='crestere'?((target-tdee)*7/7700):0);
+  return {target,tdee:Math.round(tdee),bmr:Math.round(bmr),minCal,adjusted,weeklyKg:Math.max(0,weeklyKg),requestedDelta:Math.round(requestedDelta)};
+}
+function targetCal(d){return caloriePolicy(d).target}
+function getData(){let weight=parseFloat(dom.currentWeight.value),target=parseFloat(dom.targetWeight.value),age=parseInt(dom.age.value),height=parseFloat(dom.height.value),weeks=parseInt(dom.targetWeeks?.value)||12,goal=dom.goalType.value; const bad=(m,e)=>{show(m,'error');e&&e.classList.add('error');return null}; ['currentWeight','targetWeight','age','height'].forEach(id=>dom[id]?.classList.remove('error')); if(!weight||weight<30||weight>250)return bad(T('validWeight'),dom.currentWeight); if(!target||target<30||target>250)return bad(T('validTarget'),dom.targetWeight); if(!age||age<15||age>100)return bad(T('validAge'),dom.age); if(!height||height<140||height>220)return bad(T('validHeight'),dom.height); if(!weeks||weeks<4||weeks>104)return bad(lang==='ro'?'Termenul trebuie să fie între 4 și 104 săptămâni.':'Timeframe must be between 4 and 104 weeks.',dom.targetWeeks); if(goal==='slabire'&&target>=weight)return bad(T('lossErr'),dom.targetWeight); if(goal==='crestere'&&target<=weight)return bad(T('gainErr'),dom.targetWeight); return {weight,target,age,height,gender:dom.gender.value,goal,activity:dom.activityLevel.value,restrictions:dom.restrictions.value.trim(),dietType:dom.dietType.value,targetWeeks:weeks,portionMode:dom.portionMode?.value,medicalProfile:dom.medicalProfile?.value,budgetMode:dom.budgetMode?.value||'gatit',mealsPerDay:parseInt(dom.mealsPerDay.value)||5}}
+let notif=null; function show(m,type='info'){dom.notification.textContent=m;dom.notification.className='notification '+type;clearTimeout(notif);void dom.notification.offsetWidth;dom.notification.classList.add('show');notif=setTimeout(()=>dom.notification.classList.remove('show'),3500)}
+function save(){try{localStorage.setItem('nutriplan_state_v3',JSON.stringify({favorites:state.favorites,dislikes:state.dislikes,timeSettings:state.timeSettings,darkMode:state.darkMode,progress:state.progress,lang,currentPlan:state.currentPlan,mealsPerDay:dom.mealsPerDay.value,userData:{currentWeight:dom.currentWeight.value,targetWeight:dom.targetWeight.value,goalType:dom.goalType.value,gender:dom.gender.value,age:dom.age.value,height:dom.height.value,activityLevel:dom.activityLevel.value,restrictions:dom.restrictions.value,dietType:dom.dietType.value,targetWeeks:dom.targetWeeks?.value,portionMode:dom.portionMode?.value,medicalProfile:dom.medicalProfile?.value,budgetMode:dom.budgetMode?.value}}))}catch(e){}}
+function load(){try{let data=JSON.parse(localStorage.getItem('nutriplan_state_v3')||localStorage.getItem('nutriplan_state')||'null'); if(!data)return; Object.assign(state,{favorites:data.favorites||state.favorites,dislikes:data.dislikes||state.dislikes,timeSettings:data.timeSettings||{},darkMode:!!data.darkMode,progress:data.progress||[]}); if(data.lang)lang=data.lang; if(data.mealsPerDay)dom.mealsPerDay.value=data.mealsPerDay; if(data.currentPlan&&data.currentPlan.plan&&data.currentPlan.data)state.currentPlan=data.currentPlan; let u=data.userData||{}; for(let k in u){if(dom[k])dom[k].value=u[k]} document.documentElement.setAttribute('data-theme',state.darkMode?'dark':''); dom.themeToggle.innerHTML=state.darkMode?'<i class="fas fa-sun"></i>':'<i class="fas fa-moon"></i>'}catch(e){}}
+function nav(sec){document.querySelectorAll('.section').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));$('section-'+sec)?.classList.add('active');document.querySelector(`.nav-item[data-section="${sec}"]`)?.classList.add('active')}
+function initTimes(){tr.ro.days.forEach((d,i)=>{let key=d;if(!state.timeSettings[key])state.timeSettings[key]={first:i===0?'07:30':(i===6?'09:00':'08:00'),last:i===0?'19:00':(i===6?'20:30':'19:30')}});renderTimes()}
+function renderTimes(){let html='';tr.ro.days.forEach((key,i)=>{let set=state.timeSettings[key]||{first:'08:00',last:'19:00'};html+=`<div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:.5rem;align-items:center;padding:.25rem 0;border-bottom:1px solid var(--border);font-size:.75rem;"><span style="font-weight:600;color:var(--text);">${tr[lang].days[i]}</span><input type="time" class="first-time" value="${set.first}" data-day="${key}" style="padding:.25rem .4rem;border:1.5px solid var(--border);border-radius:8px;font-size:.75rem;background:var(--card-bg);color:var(--text);width:100%;"/><input type="time" class="last-time" value="${set.last}" data-day="${key}" style="padding:.25rem .4rem;border:1.5px solid var(--border);border-radius:8px;font-size:.75rem;background:var(--card-bg);color:var(--text);width:100%;"/></div>`});dom.timeRows.innerHTML=html;dom.timeRows.querySelectorAll('input').forEach(el=>el.onchange=function(){let d=this.dataset.day, s=state.timeSettings[d]; if(this.className==='first-time')s.first=this.value;else s.last=this.value;if(s.first>=s.last){show(T('timeErr'),'error');renderTimes();return}save();updateMealTimesOnly()})}
+function updateMealTimesOnly(){if(!state.currentPlan)return;let cp=state.currentPlan;cp.plan.forEach((day,di)=>{let key=tr.ro.days[di], set=state.timeSettings[key]||{first:'08:00',last:'19:00'};day.mealTimes=times(set.first,set.last,cp.data.mealsPerDay)});renderPlan(cp.plan,cp.data);buildShopping(cp.plan);save()}
+function times(first,last,n){let [fh,fm]=first.split(':').map(Number),[lh,lm]=last.split(':').map(Number),a=fh*60+fm,b=lh*60+lm;if(b<=a)return ['08:00','10:30','13:00','16:00','19:00','21:00'].slice(0,n);let step=(b-a)/(n-1);return Array.from({length:n},(_,i)=>{let m=Math.round(a+i*step);return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')})}
+function renderTags(){dom.favTags.innerHTML=state.favorites.map(f=>`<span class="tag">${f} <span class="remove" data-type="fav" data-value="${f}">✕</span></span>`).join('');dom.dislikeTags.innerHTML=state.dislikes.map(f=>`<span class="tag">${f} <span class="remove" data-type="dislike" data-value="${f}">✕</span></span>`).join('');document.querySelectorAll('.tag .remove').forEach(x=>x.onclick=function(){let v=this.dataset.value;if(this.dataset.type==='fav')state.favorites=state.favorites.filter(f=>f!==v);else state.dislikes=state.dislikes.filter(f=>f!==v);renderTags();save()})}
+function addFood(type){let input=type==='fav'?dom.favInput:dom.dislikeInput, val=input.value.trim().toLowerCase(); if(!val)return show(T('enterFood'),'error'); let arr=type==='fav'?state.favorites:state.dislikes;if(arr.length>=10)return show(type==='fav'?T('maxFav'):T('maxDis'),'error'); if(arr.some(x=>x.toLowerCase()===val))return show(type==='fav'?T('alreadyFav'):T('alreadyDis'),'info'); arr.push(val);input.value='';renderTags();save();show(`"${val}" ${type==='fav'?T('foodAdd'):T('foodDis')}`,'success')}
+function updateStats(){let d=getData(); if(!d)return; let b=calcBMR(d.weight,d.height,d.age,d.gender); dom.bmiDisplay.textContent=bmi(d.weight,d.height);dom.bmrDisplay.textContent=Math.round(b);dom.tdeeDisplay.textContent=Math.round(b*mult(d.activity));dom.waterDisplay.textContent=water(d.weight).toFixed(1)}
+
+
+function micronutrientsForIngredient(id,g){
+  const f=foods[id]||{}; const cat=f.cat||''; let m={fiber:0,sugar:0,sodium:0,calcium:0,iron:0,potassium:0,omega3:0};
+  // Valori orientative per 100g. Nu sunt echivalentul unei baze clinice, dar permit audit minimal.
+  if(cat==='veg'){m={fiber:2.5,sugar:2.2,sodium:35,calcium:35,iron:1.1,potassium:280,omega3:0};}
+  else if(cat==='fruit'){m={fiber:2.4,sugar:10,sodium:2,calcium:12,iron:.2,potassium:180,omega3:0};}
+  else if(cat==='carb'){m={fiber:id==='ovaz'?10:2.2,sugar:1,sodium:5,calcium:18,iron:id==='ovaz'?4.7:1.0,potassium:120,omega3:0};}
+  else if(cat==='protein'){m={fiber:0,sugar:0,sodium:70,calcium:18,iron: id==='vita'?2.6:1.0,potassium:260,omega3:(['somon','macrou','pastrav'].includes(id)?1.5:0)}; if(['linte','naut','fasole','hummus','edamame'].includes(id)){m.fiber=6;m.sodium=20;m.calcium=35;m.iron=2.5;m.potassium=350;}}
+  else if(cat==='dairy'){m={fiber:0,sugar:3.5,sodium:45,calcium:120,iron:.1,potassium:150,omega3:0};}
+  else if(cat==='fat'){m={fiber:['nuci','migdale','chia','unt_arahide'].includes(id)?8:2,sugar:2,sodium:2,calcium:70,iron:2,potassium:280,omega3:id==='chia'?17:(id==='nuci'?9:0)}; if(id==='ulei'){m={fiber:0,sugar:0,sodium:0,calcium:0,iron:0,potassium:0,omega3:.7};}}
+  const k=g/100; return Object.fromEntries(Object.entries(m).map(([a,b])=>[a,b*k]));
+}
+function planMicros(plan){
+  let out={fiber:0,sugar:0,sodium:0,calcium:0,iron:0,potassium:0,omega3:0};
+  plan.flatMap(d=>d.meals).flatMap(m=>m.ingredients).forEach(i=>{let x=micronutrientsForIngredient(i.id,i.g);Object.keys(out).forEach(k=>out[k]+=x[k]||0);});
+  Object.keys(out).forEach(k=>out[k]/=7); return out;
+}
+function medicalAudit(plan,data){
+  const micro=planMicros(plan); const target=dayMacroTargets(data);
+  const totals=plan.flatMap(d=>d.meals).reduce((a,m)=>{a.kcal+=m.macros.kcal;a.p+=m.macros.p;a.c+=m.macros.c;a.f+=m.macros.f;return a},{kcal:0,p:0,c:0,f:0});
+  const avg={kcal:totals.kcal/7,p:totals.p/7,c:totals.c/7,f:totals.f/7};
+  let score=100, notes=[];
+  const dk=Math.abs(avg.kcal-target.kcal)/Math.max(1,target.kcal); if(dk>.07){score-=12; notes.push(lang==='ro'?'Caloriile au abatere peste 7%.':'Calories deviate over 7%.');}
+  const dp=Math.abs(avg.p-target.p)/Math.max(1,target.p); if(dp>.18){score-=10; notes.push(lang==='ro'?'Proteinele sunt în afara toleranței.':'Protein is outside tolerance.');}
+  if(micro.fiber < (data.gender==='male'?30:25)){score-=8; notes.push(lang==='ro'?'Fibrele sunt sub recomandarea minimă.':'Fiber is below the minimum recommendation.');}
+  if(data.medicalProfile==='hipertensiune' && micro.sodium>1500){score-=12; notes.push(lang==='ro'?'Pentru hipertensiune, sodiul estimat este prea ridicat.':'For hypertension, estimated sodium is too high.');}
+  if(data.medicalProfile==='diabet' && avg.c/data.mealsPerDay>65){score-=10; notes.push(lang==='ro'?'Pentru diabet, carbohidrații per masă pot fi prea mari.':'For diabetes, carbs per meal may be too high.');}
+  if(data.medicalProfile==='renal' && avg.p>data.weight*1.2){score-=15; notes.push(lang==='ro'?'Pentru profil renal, proteinele pot fi prea ridicate.':'For renal profile, protein may be too high.');}
+  if(['sarcina','alaptare','tca'].includes(data.medicalProfile)){score-=5; notes.push(lang==='ro'?'Profil sensibil: recomandată validare de către specialist.':'Sensitive profile: specialist validation recommended.');}
+  score=Math.max(0,Math.round(score)); return {score,notes,micro,avg,target};
+}
+function auditHTML(plan,data){
+  const a=medicalAudit(plan,data); const warn=a.score<85; const n=a.notes.length?a.notes.join(' '):(lang==='ro'?'Fără avertizări majore.':'No major warnings.');
+  return `<div class="medical-box"><strong>🧾 ${T('auditTitle')}</strong> <span class="audit-score ${warn?'warn':''}">${a.score}/100</span><br>${T('micros')}: fibre ${Math.round(a.micro.fiber)}g/zi · sodiu ~${Math.round(a.micro.sodium)}mg/zi · calciu ~${Math.round(a.micro.calcium)}mg/zi · fier ~${a.micro.iron.toFixed(1)}mg/zi · omega-3 ~${a.micro.omega3.toFixed(1)}g/zi<br><strong>${lang==='ro'?'Observații':'Notes'}:</strong> ${n}<br><em>${T('medicalDisclaimer')}</em></div>`;
+}
+function adaptiveProgressAdvice(){
+  if(!state.currentPlan||state.progress.length<3)return '';
+  let arr=[...state.progress].sort((a,b)=>new Date(a.date)-new Date(b.date)); let first=arr[0], last=arr[arr.length-1];
+  let days=Math.max(1,(new Date(last.date)-new Date(first.date))/(1000*3600*24)); if(days<10)return '';
+  let weekly=(last.weight-first.weight)/(days/7); let data=state.currentPlan.data; let policy=caloriePolicy(data); let desired=data.goal==='slabire'?-policy.weeklyKg:(data.goal==='crestere'?policy.weeklyKg:0);
+  let msg='';
+  if(data.goal==='slabire'){
+    if(weekly > desired+0.25) msg=lang==='ro'?'Progres mai lent decât ținta: ia în calcul -100 kcal/zi sau +1500 pași/zi.':'Progress slower than target: consider -100 kcal/day or +1500 steps/day.';
+    else if(weekly < desired-0.35) msg=lang==='ro'?'Slăbire prea rapidă: ia în calcul +100 kcal/zi pentru aderență și masă musculară.':'Weight loss too fast: consider +100 kcal/day for adherence and muscle retention.';
+    else msg=lang==='ro'?'Ritmul de progres este potrivit. Menține planul.':'Progress pace is appropriate. Keep the plan.';
+  } else if(data.goal==='crestere'){
+    if(weekly < desired-.15) msg=lang==='ro'?'Creștere mai lentă decât ținta: ia în calcul +100 kcal/zi.':'Gain slower than target: consider +100 kcal/day.';
+    else if(weekly > desired+.25) msg=lang==='ro'?'Creștere prea rapidă: ia în calcul -100 kcal/zi.':'Gain too fast: consider -100 kcal/day.';
+    else msg=lang==='ro'?'Ritmul de creștere este potrivit.':'Gain pace is appropriate.';
+  }
+  return msg?`<div class="quality-box"><strong>📈 ${T('adaptiveAdvice')}:</strong> ${msg}</div>`:'';
+}
+function safetyHTML(policy,data){
+  let pace=data.goal==='mentinere'?'—':(policy.weeklyKg.toFixed(2)+' kg/'+(lang==='ro'?'săpt.':'week'));
+  let warn=policy.adjusted?`<div><strong>⚠️ ${T('adjustedGoal')}</strong></div>`:'';
+  return `<div class="safety-box"><strong>🛡️ ${T('safetyTitle')}:</strong> ${T('safePace')}: <strong>${pace}</strong> · ${lang==='ro'?'minim caloric aplicat':'minimum calories applied'}: <strong>${policy.minCal} kcal</strong>${warn}<div>${T('portionNote')}</div></div>`;
+}
+function markPlanOutdated(){if(state.currentPlan && !dom.mealPlanContent.querySelector('.stale-plan')){dom.mealPlanContent.insertAdjacentHTML('afterbegin',`<div class="stale-plan">${T('stalePlan')}</div>`);}}
+function renderMealText(meal){return meal.ingredients.map(i=>`${foodName(i.id)} (${Math.round(i.g)}g)`).join(' + ')}
+function renderPlan(plan,data){let policy=caloriePolicy(data), target=policy.target, wk=plan; let totals=wk.flatMap(d=>d.meals).reduce((a,m)=>{let mm=m.macros;a.kcal+=mm.kcal;a.p+=mm.p;a.c+=mm.c;a.f+=mm.f;return a},{kcal:0,p:0,c:0,f:0}); let avg={kcal:totals.kcal/7,p:totals.p/7,c:totals.c/7,f:totals.f/7}; let html=`<div class="stats-grid"><div class="stat-card"><div class="number">${Math.round(avg.kcal)}</div><div class="label">${T('calories')}</div></div><div class="stat-card"><div class="number">${Math.round(avg.p)}g</div><div class="label">${T('protein')}</div></div><div class="stat-card"><div class="number">${Math.round(avg.c)}g</div><div class="label">${T('carbs')}</div></div><div class="stat-card"><div class="number">${Math.round(avg.f)}g</div><div class="label">${T('fats')}</div></div></div><div style="font-size:.75rem;color:var(--text-light);text-align:center;margin-bottom:1rem;">💧 ${T('waterRec')}: <strong>${water(data.weight).toFixed(1)}L</strong> (${data.weight}kg × 35ml) · 🍽️ ${data.mealsPerDay} ${T('mealsDay')} · ${lang==='ro'?'țintă':'target'}: ${target} kcal</div>${safetyHTML(policy,data)}${planQualityHTML(plan,data)}${auditHTML(plan,data)}${adaptiveProgressAdvice()}<div class="week-grid fade-in">`;
+ wk.forEach((day,di)=>{html+=`<div class="day-card fade-in" style="animation-delay:${di*.05}s"><div class="day">${tr[lang].days[di]} <span style="font-weight:400;font-size:.65rem;color:var(--text-light);">~${Math.round(day.meals.reduce((s,m)=>s+m.macros.kcal,0))} kcal</span></div>`;day.meals.forEach((m,mi)=>{let mm=m.macros;html+=`<div class="meal-item"><div class="meal-row"><span class="time">${day.mealTimes[mi]}</span><span class="food">${tr[lang].icons[mi]||'🍽️'} ${renderMealText(m)}</span><span class="cal">${Math.round(mm.kcal)} kcal</span><button class="swap-btn" data-day="${di}" data-meal="${mi}" title="Schimbă"><i class="fas fa-sync-alt"></i></button></div><div class="portion-detail">📊 ${T('protein')}:${Math.round(mm.p)}g · ${T('carbs')}:${Math.round(mm.c)}g · ${T('fats')}:${Math.round(mm.f)}g</div></div>`});html+='</div>'}); html+=`</div><div class="tip-box"><i class="fas fa-info-circle" style="color:var(--gold);margin-right:.5rem;"></i><strong>${T('tip')}:</strong> ${tr[lang].tips[data.goal]} ${data.restrictions?` 🔒 ${T('restr')}: <strong>${data.restrictions}</strong>`:''} ${data.dietType!=='standard'?` 🥗 ${T('dietWord')}: <strong>${data.dietType}</strong>`:''}</div>`;dom.mealPlanContent.innerHTML=html;document.querySelectorAll('.swap-btn').forEach(b=>b.onclick=()=>swapMeal(+b.dataset.day,+b.dataset.meal))}
+function buildShoppingHTML(plan,title){let agg={}; plan.flatMap(d=>d.meals).flatMap(m=>m.ingredients).forEach(i=>{let f=foods[i.id]; if(!agg[i.id])agg[i.id]={g:0}; agg[i.id].g+=i.g}); let cats=[[],[],[],[],[]], cost=0; Object.entries(agg).forEach(([id,o])=>{let f=foods[id], idx=f.cat==='protein'?0:f.cat==='veg'?1:f.cat==='fruit'?2:f.cat==='dairy'?3:4; let qty, qtyCost; if(f.unit==='buc'){let buc=Math.ceil(o.g/(f.gPerUnit||100)); qty=`${buc} buc (${Math.round(o.g)} g)`; qtyCost=buc*f.price}else if(f.unit==='L'){let l=o.g/(f.gPerUnit||1000); qty=l<.1?`${Math.round(l*1000)} ml`:`${l.toFixed(2)} L`; qtyCost=l*f.price}else{let kg=o.g/1000; qty=o.g<100?`${Math.round(o.g)} g`:`${kg.toFixed(2)} kg`; qtyCost=kg*f.price} cost+=qtyCost; cats[idx].push({name:foodName(id),qty})}); let html=`<div class="shopping-list"><h4><i class="fas fa-shopping-cart"></i> ${title||T('weeklyShopping')}</h4>`; cats.forEach((arr,i)=>{if(arr.length)html+=`<div class="category"><div class="category-title">${tr[lang].cats[i]}</div>${arr.sort((a,b)=>a.name.localeCompare(b.name)).map(it=>`<div class="item"><span>${it.name}</span><span>${it.qty}</span></div>`).join('')}</div>`}); html+=`<div style="margin-top:.5rem;font-size:.8rem;color:var(--text-light);display:flex;justify-content:space-between;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:.5rem;"><span>💰 ${T('estimatedCost')}: ~${Math.round(cost)} lei</span></div></div>`;return html}
+function buildShopping(plan){dom.shoppingListContent.innerHTML=buildShoppingHTML(plan,T('weeklyShopping'))}
+function generate(){if(state.isGenerating)return;state.isGenerating=true;dom.generateBtn.disabled=true;dom.generateBtn.innerHTML='<span class="spinner"></span> '+T('generating');setTimeout(()=>{try{let data=getData();if(!data)return; if(['protein','veg'].some(c=>available(c,data).length<1) || (data.dietType!=='keto'&&available('carb',data).length<1)){show(T('notEnough'),'error');return} let target=targetCal(data), dist={3:[.30,.40,.30],4:[.25,.15,.35,.25],5:[.23,.10,.32,.10,.25],6:[.20,.08,.28,.08,.22,.14]}[data.mealsPerDay]||[.23,.10,.32,.10,.25]; let used={p:[],c:[],v:[],fr:[],fat:[]}; let plan=[]; for(let di=0;di<7;di++){let key=tr.ro.days[di], mealTimes=times((state.timeSettings[key]||{}).first||'08:00',(state.timeSettings[key]||{}).last||'19:00',data.mealsPerDay), meals=[]; for(let mi=0;mi<data.mealsPerDay;mi++){let type=mi===0?'breakfast':(mi===data.mealsPerDay-1?'dinner':(mi%2?'snack':'lunch')); let m=buildMeal(type,target*dist[mi],data,used); meals.push(m); m.ingredients.forEach(i=>{let cat=foods[i.id].cat, map={protein:'p',carb:'c',veg:'v',fruit:'fr',fat:'fat'}[cat]; if(map){used[map].push(i.id); if(used[map].length>4)used[map].shift()}})} plan.push({day:key,mealTimes,meals})} state.currentPlan={plan,data}; renderPlan(plan,data); buildShopping(plan); save(); nav('weekly');show(T('success'),'success')}catch(e){console.error(e);show('Eroare: '+e.message,'error')}finally{state.isGenerating=false;dom.generateBtn.disabled=false;dom.generateBtn.innerHTML='<i class="fas fa-magic"></i> '+T('generate')}},100)}
+function swapMeal(di,mi){let cp=state.currentPlan;if(!cp)return; let old=cp.plan[di].meals[mi], type=old.type; cp.plan[di].meals[mi]=buildMeal(type,old.macros.kcal,cp.data,{p:[],c:[],v:[],fr:[],fat:[]}); renderPlan(cp.plan,cp.data); buildShopping(cp.plan); show(T('swapped'),'success'); save()}
+function updateProgressUI(){let e=state.progress;if(!e.length){dom.progressList.innerHTML=`<div style="text-align:center;color:var(--text-light);font-size:.8rem;padding:.5rem;">${T('noEntries')}</div>`;dom.progressChart.innerHTML='';dom.progressStats.textContent='0 '+T('records');dom.startWeightDisplay.textContent=dom.currentWeightDisplay.textContent=dom.totalChangeDisplay.textContent='—';return}e.sort((a,b)=>new Date(a.date)-new Date(b.date));dom.progressList.innerHTML=[...e].reverse().map((x,idx)=>`<div class="entry"><span class="date">${new Date(x.date).toLocaleDateString(lang==='ro'?'ro-RO':'en-US')}</span><span class="weight">${x.weight} kg</span><button class="delete-btn" data-idx="${e.length-1-idx}" title="Delete"><i class="fas fa-trash"></i></button></div>`).join('');dom.progressList.querySelectorAll('.delete-btn').forEach(b=>b.onclick=()=>{state.progress.splice(+b.dataset.idx,1);save();updateProgressUI();show(T('deleted'),'info')});let max=Math.max(...e.map(x=>x.weight)),min=Math.min(...e.map(x=>x.weight)),range=max-min||1;dom.progressChart.innerHTML=e.map(x=>`<div class="bar" style="height:${((x.weight-min)/range)*40+10}px;" title="${x.date}: ${x.weight}kg"></div>`).join('');let diff=e[e.length-1].weight-e[0].weight,txt=diff<0?`📉 ${Math.abs(diff).toFixed(1)} ${T('lost')}`:diff>0?`📈 ${diff.toFixed(1)} ${T('gained')}`:`⚖️ ${T('stable')}`;dom.progressStats.textContent=`${e.length} ${T('records')} · ${txt}`;dom.startWeightDisplay.textContent=e[0].weight+' kg';dom.currentWeightDisplay.textContent=e[e.length-1].weight+' kg';dom.totalChangeDisplay.textContent=txt}
+function addProgress(){let date=dom.progressDate.value,w=parseFloat(dom.progressWeight.value);if(!date)return show(T('selectDate'),'error');if(!w||w<30||w>250)return show(T('validProgress'),'error');if(state.progress.some(e=>e.date===date))return show(T('existsDate'),'error');state.progress.push({date,weight:w});dom.progressWeight.value='';dom.progressDate.value=new Date().toISOString().split('T')[0];save();updateProgressUI();show(`${T('addedEntry')}: ${w}kg`,'success')}
+function applyLang(){document.querySelector('.logo .sub').textContent=lang==='ro'?'Plan alimentar inteligent':'Smart meal planner'; const nav={personal:'personalData',meals:'mealTimes',weekly:'weeklyPlan',shopping:'shoppingList',progress:'progress'};document.querySelectorAll('.nav-item').forEach(el=>{let sec=el.dataset.section,ic=el.querySelector('i')?.outerHTML||'',bd=el.querySelector('.badge')?` <span class="badge">${T('badge')}</span>`:''; if(nav[sec])el.innerHTML=ic+' '+T(nav[sec])+bd}); $('section-personal').querySelector('h1').innerHTML=`<i class="fas fa-user-circle" style="color:var(--primary-light);"></i> ${T('personalData')}`;$('section-meals').querySelector('h1').innerHTML=`<i class="fas fa-clock" style="color:var(--primary-light);"></i> ${T('mealTimes')}`;$('section-weekly').querySelector('h1').innerHTML=`<i class="fas fa-calendar-week" style="color:var(--primary-light);"></i> ${T('weeklyPlan')}`;$('section-shopping').querySelector('h1').innerHTML=`<i class="fas fa-shopping-cart" style="color:var(--primary-light);"></i> ${T('shoppingList')}`;$('section-progress').querySelector('h1').innerHTML=`<i class="fas fa-chart-line" style="color:var(--primary-light);"></i> ${T('progressTitle')}`;dom.generateBtn.innerHTML=`<i class="fas fa-magic"></i> ${T('generate')}`;dom.exportPdfBtn.title=T('exportPdf');dom.exportPngBtn.title=T('exportPng'); if(dom.exportPdfBtn2)dom.exportPdfBtn2.innerHTML=`<i class="fas fa-file-pdf"></i> ${T('exportPdf')}`; let labels=document.querySelectorAll('label');[T('weight'),T('target'),T('goal'),T('gender'),T('targetWeeks'),T('portionMode'),T('age'),T('height'),T('activity'),T('diet'),T('medicalProfile'),T('budgetMode'),T('restrictions')].forEach((txt,i)=>{if(labels[i])labels[i].textContent=txt}); if(labels[13])labels[13].innerHTML=`<i class="fas fa-heart" style="color:#c44545;"></i> ${T('fav')} <span style="font-size:.6rem;color:var(--text-light);">${T('max10')}</span>`; if(labels[14])labels[14].innerHTML=`<i class="fas fa-ban" style="color:#b33;"></i> ${T('dislike')} <span style="font-size:.6rem;color:var(--text-light);">${T('max10')}</span>`; if(labels[15])labels[15].textContent=T('mealsNo'); let hdr=$('section-meals').querySelector('[style*="grid-template-columns:80px"]'); if(hdr)hdr.innerHTML=`<span>${T('day')}</span><span style="text-align:center;">${T('firstMeal')}</span><span style="text-align:center;">${T('lastMeal')}</span>`; let info=$('section-meals').querySelector('.card-premium div[style*="font-size:0.65rem"]'); if(info)info.innerHTML=`<i class="fas fa-info-circle"></i> ${T('autoTimes')}`; document.querySelectorAll('.stat-card .label')[0].textContent=T('bmi');document.querySelectorAll('.stat-card .label')[1].textContent=T('bmr');document.querySelectorAll('.stat-card .label')[2].textContent=T('tdee');document.querySelectorAll('.stat-card .label')[3].textContent=T('water');dom.addProgressBtn.innerHTML=`<i class="fas fa-plus"></i> ${T('add')}`; renderTimes(); updateProgressUI(); if(!state.currentPlan){dom.mealPlanContent.innerHTML=`<p class="text-muted" style="padding:.8rem 0;color:var(--text-light);">${T('noPlan')}</p>`;dom.shoppingListContent.innerHTML=`<p class="text-muted" style="padding:.8rem 0;color:var(--text-light);">${T('noShopping')}</p>`} else {renderPlan(state.currentPlan.plan,state.currentPlan.data);buildShopping(state.currentPlan.plan)} dom.langToggle.innerHTML=lang==='ro'?'🇷🇴':'🇬🇧'}
+function exportPDF(){if(!state.currentPlan)return show(T('makePlanFirst'),'error');show(T('pdfing'),'info');let cp=state.currentPlan, weekdays=cp.plan.slice(0,5);let wrap=document.createElement('div');wrap.style.cssText='background:#fff;color:#0b1e33;padding:18px;font-family:Inter,Arial,sans-serif;width:100%;';let title=lang==='ro'?'Plan alimentar luni-vineri + listă de cumpărături':'Monday-Friday meal plan + shopping list';wrap.innerHTML=`<h2 style="margin:0 0 12px;font-size:20px;color:#1a3a5c;">${title}</h2><div style="font-size:12px;margin-bottom:12px;color:#4a5b72;">${T('calories')}: ${targetCal(cp.data)} kcal/zi · ${cp.data.mealsPerDay} ${T('mealsDay')} · ${T('dietWord')}: ${cp.data.dietType}</div><div class="week-grid" style="display:grid;grid-template-columns:1fr;gap:10px;">`;weekdays.forEach((day,di)=>{wrap.innerHTML+=`<div class="day-card" style="border:1px solid #dee8f2;border-radius:12px;padding:10px;break-inside:avoid;"><div class="day" style="font-weight:700;border-bottom:1px solid #dee8f2;padding-bottom:5px;margin-bottom:6px;">${tr[lang].days[di]} <span style="font-weight:400;color:#4a5b72;">~${Math.round(day.meals.reduce((s,m)=>s+m.macros.kcal,0))} kcal</span></div>`;day.meals.forEach((m,mi)=>{let mm=m.macros;wrap.innerHTML+=`<div style="font-size:11px;padding:4px 0;border-bottom:1px dotted #dee8f2;"><strong>${day.mealTimes[mi]}</strong> · ${tr[lang].icons[mi]||'🍽️'} ${renderMealText(m)} <span style="color:#27ae60;font-weight:700;">${Math.round(mm.kcal)} kcal</span><div style="color:#4a5b72;font-size:10px;margin-left:10px;">${T('protein')}:${Math.round(mm.p)}g · ${T('carbs')}:${Math.round(mm.c)}g · ${T('fats')}:${Math.round(mm.f)}g</div></div>`});wrap.innerHTML+='</div>'});wrap.innerHTML+='</div><div style="font-size:11px;color:#5a3d1a;background:#fff7e6;border-left:3px solid #e67e22;padding:8px;margin:10px 0;">'+T('portionNote')+'</div>'+buildShoppingHTML(weekdays,lang==='ro'?'Listă cumpărături luni-vineri':'Monday-Friday shopping list');html2pdf().set({margin:.45,filename:`nutriplan_luni_vineri_cumparaturi_${new Date().toISOString().split('T')[0]}.pdf`,image:{type:'jpeg',quality:.98},html2canvas:{scale:2,letterRendering:true,useCORS:true,logging:false},jsPDF:{unit:'in',format:'a4',orientation:'portrait',compress:true}}).from(wrap).save().then(()=>show(T('pdfOk'),'success')).catch(e=>{console.error(e);show(T('exportErr'),'error')})}
+function exportPNG(){if(!state.currentPlan)return show(T('makePlanFirst'),'error');show(T('pnging'),'info');html2canvas(dom.mealPlanContent,{scale:2,useCORS:true,backgroundColor:getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim()||'#fff'}).then(c=>{let a=document.createElement('a');a.download=`nutriplan_pro_${new Date().toISOString().split('T')[0]}.png`;a.href=c.toDataURL('image/png');a.click();show(T('pngOk'),'success')}).catch(e=>{console.error(e);show(T('exportErr'),'error')})}
+let autoRegenTimer=null;function autoRegeneratePlan(){if(!state.currentPlan||state.isGenerating)return;clearTimeout(autoRegenTimer);autoRegenTimer=setTimeout(()=>{let d=getData();if(!d){markPlanOutdated();return;}generate()},450)}
+function init(){load();document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>nav(b.dataset.section));dom.addFavBtn.onclick=()=>addFood('fav');dom.addDislikeBtn.onclick=()=>addFood('dislike');dom.favInput.onkeypress=e=>{if(e.key==='Enter'){e.preventDefault();addFood('fav')}};dom.dislikeInput.onkeypress=e=>{if(e.key==='Enter'){e.preventDefault();addFood('dislike')}};dom.generateBtn.onclick=generate;dom.exportPdfBtn.onclick=exportPDF;dom.exportPdfBtn2.onclick=exportPDF;dom.exportPngBtn.onclick=exportPNG;dom.addProgressBtn.onclick=addProgress;dom.progressWeight.onkeypress=e=>{if(e.key==='Enter'){e.preventDefault();addProgress()}};dom.progressDate.value=new Date().toISOString().split('T')[0];['currentWeight','targetWeight','goalType','gender','age','height','activityLevel','restrictions','dietType','targetWeeks','portionMode','medicalProfile','budgetMode','mealsPerDay'].forEach(id=>$(id).addEventListener('input',()=>{save();updateStats();autoRegeneratePlan()}));dom.themeToggle.onclick=()=>{state.darkMode=!state.darkMode;document.documentElement.setAttribute('data-theme',state.darkMode?'dark':'');dom.themeToggle.innerHTML=state.darkMode?'<i class="fas fa-sun"></i>':'<i class="fas fa-moon"></i>';save()};dom.langToggle.onclick=()=>{lang=lang==='ro'?'en':'ro';applyLang();save()};renderTags();initTimes();applyLang();updateStats()}
+document.addEventListener('DOMContentLoaded',init);
+})();
+
+</script>
+</body>
+</html>
